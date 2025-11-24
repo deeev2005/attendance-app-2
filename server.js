@@ -38,42 +38,44 @@ db.collection('notification').onSnapshot((snapshot) => {
 
       console.log(`🔔 New notification for ${uid}: ${status} - ${subjectId}`);
 
-      try {
-        // Get user data for FCM token and image/link
-        const userDoc = await db.collection('users').doc(uid).get();
-        if (!userDoc.exists) {
-          console.log(`❌ User ${uid} not found`);
-          return;
+      (async () => {
+        try {
+          // Get user data for FCM token and image/link
+          const userDoc = await db.collection('users').doc(uid).get();
+          if (!userDoc.exists) {
+            console.log(`❌ User ${uid} not found`);
+            return;
+          }
+
+          const userData = userDoc.data();
+          const fcmToken = userData.fcmToken;
+          const imageUrl = userData.image_1 || '';
+          const clickLink = userData.link_1 || '';
+
+          if (!fcmToken) {
+            console.log(`❌ No FCM token for user ${uid}`);
+            return;
+          }
+
+          // Get subject name
+          const subjectDoc = await db.collection('users').doc(uid).collection('subjects').doc(subjectId).get();
+          const subjectName = subjectDoc.exists ? subjectDoc.data().name || subjectId : subjectId;
+
+          // Get date from notification dateTime field
+          const dateTime = data.dateTime ? data.dateTime.toDate() : new Date();
+          const formattedDate = dateTime.toLocaleDateString('en-IN', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+          });
+
+          // Send FCM notification
+          await sendVisibleNotification(uid, fcmToken, status, subjectName, formattedDate, imageUrl, clickLink);
+
+        } catch (err) {
+          console.error(`❌ Error processing notification for ${uid}:`, err.message);
         }
-
-        const userData = userDoc.data();
-        const fcmToken = userData.fcmToken;
-        const imageUrl = userData.image_1 || '';
-        const clickLink = userData.link_1 || '';
-
-        if (!fcmToken) {
-          console.log(`❌ No FCM token for user ${uid}`);
-          return;
-        }
-
-        // Get subject name
-        const subjectDoc = await db.collection('users').doc(uid).collection('subjects').doc(subjectId).get();
-        const subjectName = subjectDoc.exists ? subjectDoc.data().name || subjectId : subjectId;
-
-        // Get date from notification dateTime field
-        const dateTime = data.dateTime ? data.dateTime.toDate() : new Date();
-        const formattedDate = dateTime.toLocaleDateString('en-IN', { 
-          day: '2-digit', 
-          month: 'short', 
-          year: 'numeric' 
-        });
-
-        // Send FCM notification
-        await sendVisibleNotification(uid, fcmToken, status, subjectName, formattedDate, imageUrl, clickLink);
-
-      } catch (err) {
-        console.error(`❌ Error processing notification for ${uid}:`, err.message);
-      }
+      })();
     }
   });
 });
