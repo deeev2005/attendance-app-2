@@ -99,40 +99,35 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
     const notificationTitle = 'Attendance Update';
     const notificationBody = `Marked ${status} for ${subjectName} on ${date}`;
 
-    // Build FCM message with notification (visible) and optional image
+    // ONLY send notification if image is available
+    if (!imageUrl) {
+      console.log('⚠️ No image available, skipping notification');
+      return;
+    }
+
+    // Build FCM message with notification (visible) and image
     const message = {
       message: {
         token: fcmToken,
         notification: {
           title: notificationTitle,
-          body: notificationBody
+          body: notificationBody,
+          image: imageUrl
         },
         android: {
           priority: 'high',
           notification: {
             channelId: 'attendance_channel',
-            image: imageUrl || undefined,
-            clickAction: clickLink || undefined
+            image: imageUrl
           }
+        },
+        data: {
+          link: clickLink || ''
         }
       }
     };
 
-    // Add image at root notification level if available
-    if (imageUrl) {
-      message.message.notification.image = imageUrl;
-      console.log(`🖼️ Adding image: ${imageUrl}`);
-    }
-
-    // Remove undefined fields from android notification
-    if (!imageUrl) {
-      delete message.message.android.notification.image;
-    }
-    if (!clickLink) {
-      delete message.message.android.notification.clickAction;
-    }
-
-    console.log('📤 Sending visible notification...');
+    console.log(`🖼️ Sending notification with image: ${imageUrl}`);
 
     // Send request
     const data = JSON.stringify(message);
