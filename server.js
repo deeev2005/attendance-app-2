@@ -105,22 +105,28 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
         token: fcmToken,
         notification: {
           title: notificationTitle,
-          body: notificationBody,
-          image: imageUrl || undefined
+          body: notificationBody
         },
         android: {
           priority: 'high',
           notification: {
             channelId: 'attendance_channel',
+            imageUrl: imageUrl || undefined,
             clickAction: clickLink || undefined
           }
         }
       }
     };
 
-    // Remove undefined fields
+    // Add image at root notification level if available
+    if (imageUrl) {
+      message.message.notification.image = imageUrl;
+      console.log(`🖼️ Adding image: ${imageUrl}`);
+    }
+
+    // Remove undefined fields from android notification
     if (!imageUrl) {
-      delete message.message.notification.image;
+      delete message.message.android.notification.imageUrl;
     }
     if (!clickLink) {
       delete message.message.android.notification.clickAction;
