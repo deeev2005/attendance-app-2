@@ -79,7 +79,7 @@ db.collection('notification').onSnapshot(async (snapshot) => {
 });
 
 // ==================================================================
-// 🚀 Send Visible FCM Notification
+// 🚀 Send Visible FCM Notification (DATA-ONLY MESSAGE)
 // ==================================================================
 async function sendVisibleNotification(userId, fcmToken, status, subjectName, date, imageUrl, clickLink) {
   try {
@@ -105,29 +105,23 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
       return;
     }
 
-    // Build FCM message with notification (visible) and image
+    // Build FCM message - DATA ONLY (no notification payload)
     const message = {
       message: {
         token: fcmToken,
-        notification: {
+        data: {
           title: notificationTitle,
           body: notificationBody,
-          image: imageUrl
+          image: imageUrl,
+          link: clickLink || ''
         },
         android: {
-          priority: 'high',
-          notification: {
-            channelId: 'attendance_channel',
-            image: imageUrl
-          }
-        },
-        data: {
-          link: clickLink || ''
+          priority: 'high'
         }
       }
     };
 
-    console.log(`🖼️ Sending notification with image: ${imageUrl}`);
+    console.log(`🖼️ Sending data-only message with image: ${imageUrl}`);
 
     // Send request
     const data = JSON.stringify(message);
@@ -152,7 +146,7 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
       
       res.on('end', () => {
         if (res.statusCode === 200) {
-          console.log(`✅ Visible notification sent to ${userId}`);
+          console.log(`✅ Data message sent to ${userId}`);
         } else {
           console.log(`❌ FCM Error Status: ${res.statusCode}, Response: ${responseData}`);
         }
