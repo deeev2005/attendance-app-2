@@ -28,8 +28,8 @@ const db = admin.firestore();
 // ==================================================================
 // 👂 MONITOR NOTIFICATION COLLECTION & SEND FCM
 // ==================================================================
-db.collection('notification').onSnapshot(async (snapshot) => {
-  snapshot.docChanges().forEach(async (change) => {
+db.collection('notification').onSnapshot((snapshot) => {
+  snapshot.docChanges().forEach((change) => {
     if (change.type === 'added') {
       const data = change.doc.data();
       const { uid, subjectId, status } = data;
