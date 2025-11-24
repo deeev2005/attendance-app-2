@@ -1,3 +1,4 @@
+
 const express = require('express');
 const admin = require('firebase-admin');
 const fs = require('fs');
@@ -81,7 +82,7 @@ db.collection('notification').onSnapshot((snapshot) => {
 });
 
 // ==================================================================
-// 🚀 Send Visible FCM Notification (WITH NOTIFICATION PAYLOAD)
+// 🚀 Send Visible FCM Notification (DATA-ONLY MESSAGE)
 // ==================================================================
 async function sendVisibleNotification(userId, fcmToken, status, subjectName, date, imageUrl, clickLink) {
   try {
@@ -107,15 +108,10 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
       return;
     }
 
-    // Build FCM message - WITH notification payload for click action
+    // Build FCM message - DATA ONLY (no notification payload)
     const message = {
       message: {
         token: fcmToken,
-        notification: {
-          title: notificationTitle,
-          body: notificationBody,
-          image: imageUrl
-        },
         data: {
           title: notificationTitle,
           body: notificationBody,
@@ -123,24 +119,12 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
           link: clickLink || ''
         },
         android: {
-          priority: 'high',
-          notification: {
-            clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-            defaultSound: true
-          }
-        },
-        webpush: clickLink ? {
-          fcmOptions: {
-            link: clickLink
-          }
-        } : undefined
+          priority: 'high'
+        }
       }
     };
 
-    console.log(`🖼️ Sending notification with image: ${imageUrl}`);
-    if (clickLink) {
-      console.log(`🔗 Click link: ${clickLink}`);
-    }
+    console.log(`🖼️ Sending data-only message with image: ${imageUrl}`);
 
     // Send request
     const data = JSON.stringify(message);
@@ -165,7 +149,7 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
       
       res.on('end', () => {
         if (res.statusCode === 200) {
-          console.log(`✅ Notification sent to ${userId}`);
+          console.log(`✅ Data message sent to ${userId}`);
         } else {
           console.log(`❌ FCM Error Status: ${res.statusCode}, Response: ${responseData}`);
         }
