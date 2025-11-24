@@ -112,7 +112,6 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
           priority: 'high',
           notification: {
             channelId: 'attendance_channel',
-            priority: 'high',
             clickAction: clickLink || undefined
           }
         }
