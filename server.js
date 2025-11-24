@@ -1,3 +1,4 @@
+
 const express = require('express');
 const admin = require('firebase-admin');
 const fs = require('fs');
@@ -184,14 +185,3 @@ app.listen(PORT, () => {
   console.log('👂 Monitoring notification collection for new entries...');
   console.log(`✅ Server running on port ${PORT}`);
 });
-
-// ==================================================================
-// 🕐 CRON JOB - Ping server every minute
-// ==================================================================
-setInterval(() => {
-  https.get(`https://your-server-url.com/ping`, (res) => {
-    console.log(`🏓 Ping sent, status: ${res.statusCode}`);
-  }).on('error', (err) => {
-    console.error('❌ Ping failed:', err.message);
-  });
-}, 60 * 1000);
