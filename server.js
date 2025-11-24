@@ -111,7 +111,7 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
           priority: 'high',
           notification: {
             channelId: 'attendance_channel',
-            imageUrl: imageUrl || undefined,
+            image: imageUrl || undefined,
             clickAction: clickLink || undefined
           }
         }
@@ -126,7 +126,7 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
 
     // Remove undefined fields from android notification
     if (!imageUrl) {
-      delete message.message.android.notification.imageUrl;
+      delete message.message.android.notification.image;
     }
     if (!clickLink) {
       delete message.message.android.notification.clickAction;
