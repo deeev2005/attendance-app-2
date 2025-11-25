@@ -26,6 +26,17 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // ==================================================================
+// 🩺 Health Check & Ping - MOVED TO TOP FOR IMMEDIATE AVAILABILITY
+// ==================================================================
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+app.get('/ping', (req, res) => {
+  console.log('🏓 Ping received at', new Date().toISOString());
+  res.status(200).send('OK');
+});
+
+// ==================================================================
 // 👂 MONITOR NOTIFICATION COLLECTION & SEND FCM
 // ==================================================================
 db.collection('notification').onSnapshot((snapshot) => {
@@ -166,14 +177,6 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
     console.error(`❌ Error sending notification to ${userId}:`, err.message);
   }
 }
-
-// ==================================================================
-// 🩺 Health Check & Ping
-// ==================================================================
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-app.get('/ping', (req, res) => res.status(200).send('OK'));
 
 // ==================================================================
 // 🚀 SERVER START
