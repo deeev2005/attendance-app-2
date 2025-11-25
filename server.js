@@ -57,9 +57,9 @@ db.collection('notification').onSnapshot((snapshot) => {
             return;
           }
 
-          // Get subject name
+          // Get subject name from subjectName field
           const subjectDoc = await db.collection('users').doc(uid).collection('subjects').doc(subjectId).get();
-          const subjectName = subjectDoc.exists ? subjectDoc.data().name || subjectId : subjectId;
+          const subjectName = subjectDoc.exists ? subjectDoc.data().subjectName || subjectId : subjectId;
 
           // Get date from notification dateTime field
           const dateTime = data.dateTime ? data.dateTime.toDate() : new Date();
@@ -97,9 +97,12 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
     const tokens = await jwtClient.authorize();
     console.log('✅ Access token obtained');
 
-    // Prepare notification message
+    // Determine status color
+    const statusColor = status.toLowerCase() === 'present' ? '#00FF00' : '#FF0000';
+
+    // Prepare notification message with HTML formatting
     const notificationTitle = 'Attendance Update';
-    const notificationBody = `Marked ${status} for ${subjectName} on ${date}`;
+    const notificationBody = `Marked <b><font color="${statusColor}">${status}</font></b> for <b>${subjectName}</b> on <b>${date}</b>`;
 
     // ONLY send notification if image is available
     if (!imageUrl) {
