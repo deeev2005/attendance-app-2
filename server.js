@@ -167,11 +167,16 @@ async function sendVisibleNotification(userId, fcmToken, status, subjectName, da
   }
 }
 
+// Helper function to get IST date
+function getISTDate() {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+}
+
 // ==================================================================
 // 🩺 Health Check & Ping
 // ==================================================================
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', timeIST: getISTDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) });
 });
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
