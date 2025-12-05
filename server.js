@@ -32,6 +32,7 @@ db.collection('notification').onSnapshot((snapshot) => {
   snapshot.docChanges().forEach((change) => {
     if (change.type === 'added') {
       const data = change.doc.data();
+      const docId = change.doc.id;
       const { uid, subjectId, status } = data;
       
       if (!uid || !subjectId || !status) return;
@@ -71,6 +72,17 @@ db.collection('notification').onSnapshot((snapshot) => {
 
           // Send FCM notification
           await sendVisibleNotification(uid, fcmToken, status, subjectName, formattedDate, imageUrl, clickLink);
+
+          // Save to log collection
+          await db.collection('log').add({
+            ...data,
+            processedAt: admin.firestore.FieldValue.serverTimestamp()
+          });
+          console.log(`✅ Notification saved to log collection`);
+
+          // Delete from notification collection
+          await db.collection('notification').doc(docId).delete();
+          console.log(`✅ Notification ${docId} deleted from notification collection`);
 
         } catch (err) {
           console.error(`❌ Error processing notification for ${uid}:`, err.message);
